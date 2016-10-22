@@ -1,7 +1,5 @@
 package terrain;
 
-import com.sun.deploy.jardiff.JarDiff;
-
 import java.util.Random;
 
 public class TerrainGenerator {
