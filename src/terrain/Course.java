@@ -5,10 +5,11 @@ public class Course {
     private int currentHole;
     private int holesInGame;
 
-    public Course(int difficulty, int numHoles) {
+    // settings = [ difficulty(1-10), numHoles ]
+    public Course(int[] settings) {
         this.currentHole = 0;
-        this.holesInGame = numHoles;
-        this.holes = generateHoles(difficulty);
+        this.holesInGame = settings[1]; // numHoles
+        this.holes = generateHoles(settings[0]); // difficulty
     }
 
     private Hole[] generateHoles(int difficulty) {
