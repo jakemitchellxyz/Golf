@@ -19,32 +19,26 @@ package physics;
 
 public class PhysicsEngine{
 	
-	// Make us a new ball
-	private Ball ball = new Ball();
+	private Ball ball;
+
 	
 	// An array with all the 10 clubs
 	// Name, mean, standard deviation, loft
-	private Club[] clubs = new Club[] {
+	private static final Club[] CLUBS = new Club[] {
+					
+		new Club("Driver", 230, 30, 13),
+		new Club("3-wood", 215, 20, 17),
+		new Club("3-iron", 180, 20, 24),
+		new Club("4-iron", 170, 17, 28),
+		new Club("5-iron", 155, 15, 32),
+		new Club("6-iron", 145, 15, 36),
+		new Club("7-iron", 135, 15, 40),
+		new Club("8-iron", 125, 15, 44),
+		new Club("9-iron", 110, 10, 48),
+		new Club("Wedge ",  50, 10, 60) 
+					
 			
-			new Club("Driver", 230, 30, 13),
-			new Club("3-wood", 215, 20, 17),
-			new Club("3-iron", 180, 20, 24),
-			new Club("4-iron", 170, 17, 28),
-			new Club("5-iron", 155, 15, 32),
-			new Club("6-iron", 145, 15, 36),
-			new Club("7-iron", 135, 15, 40),
-			new Club("8-iron", 125, 15, 44),
-			new Club("9-iron", 110, 10, 48),
-			new Club("Wedge ",  50, 10, 60) 
-			
-	
 	};
-	
-	
-	
-	
-	
-	
 	
 	
 	private double angle;
@@ -57,6 +51,14 @@ public class PhysicsEngine{
 	{
 		this.angle = angle;
 		this.velocity = velocity;
+		
+
+		
+		// Make us a new ball
+		this.ball = new Ball();
+		
+		
+		
 	}
 
 	public double getAngle()
@@ -110,7 +112,7 @@ public class PhysicsEngine{
 		*/
 		
 		double g = 9.81;
-		double vT = Math.sqrt( (2*ball.getMass()*g) / (ball.getCoeff()*1.225*ball.getArea()) ); // Terminal Velocity
+		double vT = Math.sqrt( (2*ball.MASS*g) / (ball.COEFF*1.225*ball.AREA) ); // Terminal Velocity
 		
 		double a = 1 - ((distanceX*g) / (Math.cos(club.getLoft())*vT*this.velocity));
 		double time = (Math.log(a) * vT) / -g; // time at which projectile is at that point
