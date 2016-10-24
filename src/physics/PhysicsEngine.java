@@ -16,10 +16,11 @@
 
 
 package physics;
+import java.util.Random;
 
 public class PhysicsEngine{
 	
-	private Ball ball;
+	private Ball golfBall;
 
 	
 	// An array with all the 10 clubs
@@ -44,21 +45,9 @@ public class PhysicsEngine{
 	private double angle;
 	private double velocity;
 	
-	
-	
-
-	public PhysicsEngine(double angle, double velocity)
+	public PhysicsEngine()
 	{
-		this.angle = angle;
-		this.velocity = velocity;
-		
-
-		
-		// Make us a new ball
-		this.ball = new Ball();
-		
-		
-		
+		golfBall = new Ball();
 	}
 
 	public double getAngle()
@@ -70,31 +59,27 @@ public class PhysicsEngine{
 	{
 		return this.velocity;
 	}
-
-	public double getRange()
-	{
-		/* 
-
-		Calculate maximum horizontal distance the projectile can travel
-		This formula is for no air resistance,
-			it works since range with air resistance would be less anyway.
-		*/
-
-
-		double range = (this.velocity* this.velocity)*Math.sin(2*Math.toRadians(this.angle));
 		
-		return range;
+	public void hitBall(int userAngle, Club club, int power, int[] ball, int[] hole)
+	{
+		Random random = new Random();
+		userAngle -= random.nextInt(8);
+		
+		int pick = random.nextInt(2);
+		int [] multiplier = {-1,1};
+		
+		double angle = Math.atan(( hole[1] - ball[1] ) / (hole[0] - hole[0]));
+		angle = Math.toDegrees(angle) + (userAngle*multiplier[pick]);
+		
+		double range = club.nextRange(power);	
+		golfBall.setPath(range, angle);
 	}
-
-	
 
 	// Function to launch ball
 	// Takes distance along x and the club being used; returns height at that point
-	
 	public void nextHeight(Club club)
 	{
 
-		
 		double distanceX = 0.5;
 		
 		/*
@@ -105,26 +90,19 @@ public class PhysicsEngine{
 		
 			vT is the terminal velocity for fast moving object
 			Density of air is assumed to be 1.225 kg/m^3
-			
-			
-		
 
 		*/
 		
 		double g = 9.81;
-		double vT = Math.sqrt( (2*ball.MASS*g) / (ball.COEFF*1.225*ball.AREA) ); // Terminal Velocity
-		
+		double vT = Math.sqrt( (2*golfBall.MASS*g) / (golfBall.COEFF*1.225*golfBall.AREA) ); // Terminal Velocity
 		double a = 1 - ((distanceX*g) / (Math.cos(club.getLoft())*vT*this.velocity));
 		double time = (Math.log(a) * vT) / -g; // time at which projectile is at that point
-
 		double b = ((this.velocity*Math.sin(club.getLoft())) + vT);
 		double x = Math.pow(Math.E,(-1*g*time)/vT);
 		double c = 1 - (x);
+		double height = ((vT/g)*(b)*(c)) - (vT*time); // Height of projectile above ground		
 		
-		double height = ((vT/g)*(b)*(c)) - (vT*time); // Height of projectile above ground
-		
-		
-		ball.setHeight(height);
+		golfBall.setHeight(height);
 		
 
 		
