@@ -42,6 +42,11 @@ public class Club {
 		return this.loft;
 	}
 	
+	public int getRange()
+	{
+		return this.range;
+	}
+	
 	
 	
 }

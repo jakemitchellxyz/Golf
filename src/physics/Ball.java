@@ -27,6 +27,16 @@ public class Ball {
 		
 	}
 	
+	public double getAngle()
+	{
+		return this.path[1];
+	}
+	
+	public double getRange()
+	{
+		return this.path[0];
+	}
+	
 	public void setLocation(double x, double y)
 	{
 		location[0] = x;
