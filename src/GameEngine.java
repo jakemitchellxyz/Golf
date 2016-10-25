@@ -40,11 +40,8 @@ public class GameEngine {
 
             user.giveHoleDetails();
 
-            while (physics.getBall().canMoveForward()) {
-
-            }
-
-
+            // TODO: cycle through rounds
+            quitGame();
 
             terrain = hole.getTerrain();
             System.out.println("Hole " + course.holeNumber() + ": height " + terrain.length + ", width " + terrain[0].length + ", area " + terrain.length * terrain[0].length);

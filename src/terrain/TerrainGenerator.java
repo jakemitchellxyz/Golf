@@ -5,7 +5,8 @@ import java.util.Random;
 public class TerrainGenerator {
     private static final int AVERAGE_AREA = 11000;
     private static final int DEVIATION = 15;
-    private static final double MISC_OFFSET = 1/10; // what percentage of the x and y should the hole be offset from the tee, the path be offset from the tee, etc.
+    private static final double MISC_OFFSET = 0.1; // what percentage of the x and y should the hole be offset from the tee, the path be offset from the tee, etc.
+    private static final double T_OFFSET = 0.5;
 
     Random rand = new Random();
 
@@ -13,6 +14,7 @@ public class TerrainGenerator {
     private int[] hole;
     private int height;
     private int width;
+    private double theta;
 
     public TerrainGenerator (int difficulty) {
         width = (int) (rand.nextGaussian() * DEVIATION + Math.floor(Math.sqrt(AVERAGE_AREA) + difficulty * 2));
@@ -41,47 +43,71 @@ public class TerrainGenerator {
             }
         }
 
-        int x = tee[0];
-        int y = tee[1];
+        // Get the min distance from the tee to the hole (maximum value of the offset t)
+        double maxT = Math.sqrt(Math.pow(hole[0] - tee[0], 2) + Math.pow(hole[1] - tee[1], 2));
+
+        // t represents the offset from the tee along the straight line from the tee to the hole
         double t = 0;
+        int[] pointL;
+        int[] pointR;
 
-        while (x < hole[0]) {
-            y = straightLineWithOffset(t, 0);
-            t += 0.5;
-            x = xFromT(t);
+        System.out.println(width + " " + height);
+
+        // Handle the first quadrant
+        while (t < maxT / 4) {
+            pointL = getSinCurve(t, leftCurve(t));
+            pointR = getSinCurve(t, rightCurve(t));
+
+            System.out.println(pointL[0] + " " + pointL[1]);
+            System.out.println(pointR[0] + " " + pointR[1]);
+
+            // Set all of the points between the lines to true
+            for(int i = pointL[1]; i <= pointR[1]; i++) {
+                blockedPoints[pointL[0]][i] = true;
+            }
+
+            t += T_OFFSET;
         }
-        leftCurve(t);
 
-        rightCurve(t);
+        printPoints(blockedPoints);
 
-
+        return null;
     }
 
-    private int xFromT(double t) {
-        double m = (hole[1] - tee[1]) / (hole[0] - tee[0]); // slope
-        double theta = Math.atan(m); // Get the angle of the slope
-        double x = Math.cos(theta) * t + tee[0]; // get the x coordinate from the t offset
-        return (int) Math.round(x);
+    // Returns the sin coordinates at an offset on a specific line
+    private int[] getSinCurve(double t, double lineY) {
+        double tX = Math.cos(theta) * t + tee[0];
+        double tY = Math.sin(theta) * t + lineY;
+        double s = sin(t);
+        double sX = tX - Math.sin(theta) * s;
+        double sY = tY + Math.cos(theta) * s;
+
+        return new int[] { (int) Math.round(sX), (int) Math.round(sY) };
+    }
+
+    private double sin(double t) {
+        return Math.sin(t);
     }
 
     // Left curve; left bound of the path to the hole
-    private int leftCurve(double t) {
+    private double leftCurve(double t) {
         return straightLineWithOffset(t, height * MISC_OFFSET);
     }
 
     // Right curve; right bound of the path to the hole
-    private int rightCurve(double t) {
+    private double rightCurve(double t) {
         return straightLineWithOffset(t, width * -MISC_OFFSET);
     }
 
     // Create a straight line between the tee and the hole with an offset on the y intercept (to generate two curved lines)
-    private int straightLineWithOffset(double t, double offset) {
+    private double straightLineWithOffset(double t, double offset) {
         double m = (hole[1] - tee[1]) / (hole[0] - tee[0]); // slope
         double b = (hole[1] - m * hole[0]); // get the y offset based on the hole
-        double theta = Math.atan(m); // Get the angle of the slope
+        theta = Math.atan(m); // Get the angle of the slope
+
         double x = Math.cos(theta) * t + tee[0]; // get the x coordinate from the t offset
 
-        return (int) Math.round(m * x + b + offset);
+        return m * x + b + offset;
     }
 
     // Print the empty points
