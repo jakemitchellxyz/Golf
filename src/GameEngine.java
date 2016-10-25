@@ -1,13 +1,17 @@
+import physics.PhysicsEngine;
 import terrain.Course;
 import terrain.Hole;
 import terrain.Point;
+import physics.PhysicsEngine;
 
 public class GameEngine {
     private UserInteraction user;
     private Course course;
+    private PhysicsEngine physics;
 
     public GameEngine() {
         this.user = new UserInteraction();
+        this.physics = new PhysicsEngine();
     }
 
     // Give user instructions and create a new game
@@ -23,17 +27,28 @@ public class GameEngine {
     }
 
     public void play() {
-        user.sayln("We're playing now!");
-//        Hole hole;
-//        Point[][] terrain;
-//
-//        // Iterate through the holes of the game
-//        while(course.hasNextHole()) {
-//            hole = course.nextHole();
-//
-//            terrain = hole.getTerrain();
-//            System.out.println("Hole " + course.holeNumber() + ": height " + terrain.length + ", width " + terrain[0].length + ", area " + terrain.length * terrain[0].length);
-//        }
+        Hole hole;
+        Point[][] terrain;
+
+        // Iterate through the holes of the game
+        while(course.hasNextHole()) {
+            hole = course.nextHole();
+
+            if(course.isFirstHole()) {
+                user.welcomeToCourse();
+            }
+
+            user.giveHoleDetails();
+
+            while (physics.getBall().canMoveForward()) {
+
+            }
+
+
+
+            terrain = hole.getTerrain();
+            System.out.println("Hole " + course.holeNumber() + ": height " + terrain.length + ", width " + terrain[0].length + ", area " + terrain.length * terrain[0].length);
+        }
     }
 
     // Terminate the program

@@ -1,5 +1,7 @@
 package terrain;
 
+import terrain.obstacles.Obstacle;
+
 public class Point {
     private Obstacle obstacle;
 

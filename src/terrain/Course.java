@@ -34,4 +34,8 @@ public class Course {
         return currentHole;
     }
 
+    public boolean isFirstHole() {
+        return currentHole == 1;
+    }
+
 }

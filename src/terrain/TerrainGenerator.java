@@ -3,98 +3,90 @@ package terrain;
 import java.util.Random;
 
 public class TerrainGenerator {
+    private static final int AVERAGE_AREA = 11000;
+    private static final int DEVIATION = 15;
+    private static final double MISC_OFFSET = 1/10; // what percentage of the x and y should the hole be offset from the tee, the path be offset from the tee, etc.
+
     Random rand = new Random();
 
-    private boolean[][] emptyPoints; // true means something is occupying that space
+    private int[] tee;
     private int[] hole;
     private int height;
     private int width;
-    private int avgArea = 11000;
-    private int deviation = 15;
 
     public TerrainGenerator (int difficulty) {
-        width = (int) (rand.nextGaussian() * deviation + Math.floor(Math.sqrt(avgArea) + difficulty * 2));
-        height = (int) (rand.nextGaussian() * deviation + Math.floor(Math.sqrt(avgArea) + difficulty * 2));
+        width = (int) (rand.nextGaussian() * DEVIATION + Math.floor(Math.sqrt(AVERAGE_AREA) + difficulty * 2));
+        height = (int) (rand.nextGaussian() * DEVIATION + Math.floor(Math.sqrt(AVERAGE_AREA) + difficulty * 2));
+
+        tee = new int[] { 1, 1 };
+        hole = new int[]{
+                    (int) Math.round(width * (1 - MISC_OFFSET)),
+                    (int) Math.round(height * (1 - MISC_OFFSET))
+                };
     }
 
     public Point[][] generate() {
-        Point[][] grid = new Point[width][height];
-        emptyPoints = new boolean[width][height];
+        boolean[][] blockedPoints = new boolean[width][height]; // True means we shouldn't put anything at this point
 
-        // Creates a clear path from tee to hole (generates where the hole is)
-        createPath();
+        // Bounds for the green
+        int greenLeftBound = (int) Math.round(hole[0] - width * (MISC_OFFSET / 2));
+        int greenRightBound = (int) Math.round(hole[0] + width * (MISC_OFFSET / 2));
+        int greenBottomBound = (int) Math.round(hole[1] - height * (MISC_OFFSET / 2));
+        int greenTopBound = (int) Math.round(hole[1] + height * (MISC_OFFSET / 2));
 
-        // Prints out the empty points so we can debug it
-        printPoints();
-
-        // Adds more padding to the path
-        thickenPath(1);
-
-        // Prints out the empty points so we can debug it
-        printPoints();
-
-        return grid;
-    }
-
-    private void createPath() {
-        int y = 1;
-
-        // Draw a curvy line from tee to hole
-        for (int x = 1; x <= width - 2; x++) {
-            int dest = (int) Math.min(height - 2, Math.max(1, Math.round(sin(x))));
-
-            if (dest > y) {
-                for (int y1 = y; y1 < dest; y1++) {
-                    emptyPoints[x][y1] = true;
-                }
-            } else if (dest < y) {
-                for (int y1 = y; y1 > dest; y1--) {
-                    emptyPoints[x][y1] = true;
-                }
-            }
-
-            y = dest;
-
-            emptyPoints[x][y] = true;
-        }
-
-        hole = new int[]{ width-2, y };
-    }
-
-    // Add padding around the path
-    private void thickenPath(int size) {
-        boolean[][] nEmptyPoints = emptyPoints;
-
-        for (int x = 1; x < width - 1; x++) {
-            for (int y = 1; y < height - 1; y++) {
-                if (emptyPoints[x][y]) {
-                    nEmptyPoints[x][y] = true;
-
-                    for (int i = 1; i <= size; i++) {
-                        nEmptyPoints[x + i][y] = true; // right
-                        nEmptyPoints[x - i][y] = true; // left
-                        nEmptyPoints[x][y + i] = true; // top
-                        nEmptyPoints[x][y - i] = true; // bottom
-                        nEmptyPoints[x + i][y + i] = true; // top right
-                        nEmptyPoints[x - i][y + i] = true; // top left
-                        nEmptyPoints[x + i][y - i] = true; // bottom right
-                        nEmptyPoints[x - i][y - i] = true; // bottom left
-                    }
-                }
+        // Clear out the area around the hole (the green)
+        for (int x = greenLeftBound; x <= greenRightBound; x++) {
+            for (int y = greenBottomBound; y <= greenTopBound; y++) {
+                blockedPoints[x][y] = true;
             }
         }
 
-        emptyPoints = nEmptyPoints;
+        int x = tee[0];
+        int y = tee[1];
+        double t = 0;
+
+        while (x < hole[0]) {
+            y = straightLineWithOffset(t, 0);
+            t += 0.5;
+            x = xFromT(t);
+        }
+        leftCurve(t);
+
+        rightCurve(t);
+
+
     }
 
-    // Generates the modified sin curve
-    private double sin (int x) {
-        return (Math.sin(5 * x) / x) * (height - 2) + x * 3/4;
+    private int xFromT(double t) {
+        double m = (hole[1] - tee[1]) / (hole[0] - tee[0]); // slope
+        double theta = Math.atan(m); // Get the angle of the slope
+        double x = Math.cos(theta) * t + tee[0]; // get the x coordinate from the t offset
+        return (int) Math.round(x);
+    }
+
+    // Left curve; left bound of the path to the hole
+    private int leftCurve(double t) {
+        return straightLineWithOffset(t, height * MISC_OFFSET);
+    }
+
+    // Right curve; right bound of the path to the hole
+    private int rightCurve(double t) {
+        return straightLineWithOffset(t, width * -MISC_OFFSET);
+    }
+
+    // Create a straight line between the tee and the hole with an offset on the y intercept (to generate two curved lines)
+    private int straightLineWithOffset(double t, double offset) {
+        double m = (hole[1] - tee[1]) / (hole[0] - tee[0]); // slope
+        double b = (hole[1] - m * hole[0]); // get the y offset based on the hole
+        double theta = Math.atan(m); // Get the angle of the slope
+        double x = Math.cos(theta) * t + tee[0]; // get the x coordinate from the t offset
+
+        return (int) Math.round(m * x + b + offset);
     }
 
     // Print the empty points
-    private void printPoints() {
-        for (boolean[] column : emptyPoints) {
+    private void printPoints(boolean[][] blockedPoints) {
+        for (boolean[] column : blockedPoints) {
             for (boolean row : column) {
                 System.out.print(row ? 1 : 0);
             }

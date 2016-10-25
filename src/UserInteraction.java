@@ -55,6 +55,18 @@ public class UserInteraction {
         return new int[]{ difficulty, numHoles };
     }
 
+    // Give user details about the course
+    public void welcomeToCourse() {
+        // TODO: welcome user nicely
+        say("Welcome to the course!");
+    }
+
+    // Tell the user the details of the hole
+    public void giveHoleDetails() {
+        // TODO: give details about the hole
+        say("Here are the hole details");
+    }
+
     // Helper method to print out a message (without typing "System.out.print" a million times
     public void say (String msg) {
         System.out.print(msg);
