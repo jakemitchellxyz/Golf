@@ -36,7 +36,7 @@ public class PhysicsEngine{
 		new Club("7-iron", 135, 15, 40),
 		new Club("8-iron", 125, 15, 44),
 		new Club("9-iron", 110, 10, 48),
-		new Club("Wedge ",  50, 10, 60) 
+		new Club("Wedge ",  50, 10, 70) 
 					
 			
 	};

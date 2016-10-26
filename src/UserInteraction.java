@@ -64,7 +64,11 @@ public class UserInteraction {
     // Tell the user the details of the hole
     public void giveHoleDetails() {
         // TODO: give details about the hole
-        say("Here are the hole details");
+        sayln("Here are the hole details: ");
+        
+        
+        
+        
     }
 
     // Helper method to print out a message (without typing "System.out.print" a million times

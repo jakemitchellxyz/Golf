@@ -40,10 +40,7 @@ public class GameEngine {
 
             user.giveHoleDetails();
 
-            while (physics.getBall().canMoveForward()) {
-
-            }
-
+            
 
 
             terrain = hole.getTerrain();
