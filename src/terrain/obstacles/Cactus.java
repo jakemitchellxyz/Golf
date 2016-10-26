@@ -1,19 +1,19 @@
 package terrain.obstacles;
 
-public class Pond extends Obstacle {
-    public Pond () {
+public class Cactus extends Obstacle {
+
+    public Cactus () {
         // maxHeight, minHeight, maxRadius, minRadius, deviation
-        super(0, 0, 20, 5, 5);
+        super(20, 5, 1, 1, 4);
     }
 
     @Override
     public String hit() {
-        return "You landed in a pond!";
+        return "You hit a Cactus!";
     }
 
     @Override
     public String getType() {
-        return "P";
+        return "C";
     }
 }
-

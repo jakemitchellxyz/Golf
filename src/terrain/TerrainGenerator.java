@@ -23,6 +23,8 @@ public class TerrainGenerator {
     public TerrainGenerator (int difficulty, int biome) {
         this.difficulty = difficulty;
         this.biome = biome;
+        System.out.println(biome);
+
         width = (int) (rand.nextGaussian() * DEVIATION + Math.floor(Math.sqrt(AVERAGE_AREA) + difficulty * 2));
         height = (int) (rand.nextGaussian() * DEVIATION + Math.floor(Math.sqrt(AVERAGE_AREA) + difficulty * 2));
 
@@ -83,35 +85,27 @@ public class TerrainGenerator {
             tri++;
         }
 
-        // TODO: remove
-        printPoints(blockedPoints);
-
         Point[][] terrain = new Point[width][height];
         Obstacle obstacle;
-        int radius;
         double odds;
 
+        // Insert obstacles as necessary at each point
         for (int x = 0; x < width; x++) {
-            column:
             for (int y = 0; y < height; y++) {
                 // If this point is empty
                 if (!blockedPoints[x][y]) {
-                    // Chances are 10% for easiest level and 46% for hardest
-                    odds = (10 + 4 * (difficulty - 1)) / 100.0;
+                    odds = Math.min(0.1, difficulty / 100.0);
 
                     if (rand.nextDouble() <= odds) {
                         obstacle = newObstacle();
-                        radius = obstacle.getRadius();
 
-                        for (int i = 0; i <= radius; i++) {
-                            // if any of the surrounding spots are taken
-                            if (surroundingPointsTaken(blockedPoints, x, y, i)) {
-                                // Skip to the next space
-                                continue column;
-                            }
+                        // if any of the surrounding spots are taken
+                        if (surroundingPointsTaken(blockedPoints, x, y, obstacle)) {
+                            // Skip to the next space
+                            continue;
                         }
 
-                        terrain[x][y] = new Point(obstacle);
+                        insertObstacleAtPoints(terrain, blockedPoints, x, y, obstacle);
                     }
                 }
             }
@@ -142,37 +136,29 @@ public class TerrainGenerator {
     // Generate a random obstacle based on the biome
     private Obstacle newObstacle() {
         Obstacle obstacle;
-        double odds = Math.abs(rand.nextGaussian() * 5);
+        double odds = rand.nextDouble();
 
         if (biome == 0) { // Desert
-            if (odds < 5) {
-                obstacle = new Rock();
+            if (odds <= 0.75) {
+                obstacle = new Cactus();
             } else {
-                if (rand.nextBoolean()) {
-                    obstacle = new Tree();
-                } else {
-                    obstacle = new Pond();
-                }
+                obstacle = new Rock();
             }
         } else if (biome == 1) { // Forest
-            if (odds < 5) {
+            if (odds <= 0.75) {
                 obstacle = new Tree();
             } else {
-                if (rand.nextBoolean()) {
+                if (odds <= 0.85) {
                     obstacle = new Rock();
                 } else {
                     obstacle = new Pond();
                 }
             }
         } else { // Swamp
-            if (odds < 5) {
+            if (odds <= 0.75) {
                 obstacle = new Pond();
             } else {
-                if (rand.nextBoolean()) {
-                    obstacle = new Tree();
-                } else {
-                    obstacle = new Rock();
-                }
+                obstacle = new Tree();
             }
         }
 
@@ -180,21 +166,41 @@ public class TerrainGenerator {
     }
 
     // Check nearby spaces while preventing null reference errors; true if any nearby are taken
-    private boolean surroundingPointsTaken(boolean[][] blockedPoints, int x, int y, int i) {
-        int plusX = Math.min(width - 1, x + i);
-        int minusX = Math.max(0, x - i);
+    private boolean surroundingPointsTaken(boolean[][] blockedPoints, int x, int y, Obstacle obstacle) {
+        int radius = obstacle.getRadius();
 
-        int plusY = Math.min(height - 1, y + i);
-        int minusY = Math.max(0, y - i);
+        for (int i = x - radius - 1; i <= x + radius + 1; i++) {
+            for (int j = y + radius + 1; j >= y - radius - 1; j--) {
+                // If this point is in the grid and
+                if (i >= 0 && i < width
+                    && j >= 0 && j < height
+                    && blockedPoints[i][j]) {
 
-        return blockedPoints[plusX][y]
-                || blockedPoints[minusX][y]
-                || blockedPoints[x][plusY]
-                || blockedPoints[x][minusY]
-                || blockedPoints[plusX][plusY]
-                || blockedPoints[plusX][minusY]
-                || blockedPoints[minusX][plusY]
-                || blockedPoints[minusX][minusY];
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private void insertObstacleAtPoints(Point[][] terrain, boolean[][] blockedPoints, int x, int y, Obstacle obstacle) {
+        Point point = new Point(obstacle);
+        int radius = obstacle.getRadius();
+
+        for (int i = x - radius; i <= x + radius; i++) {
+            for (int j = y + radius; j >= y - radius; j--) {
+                //System.out.println(i + " " + j);
+
+                // Make sure this is in the grid first
+                if (i >= 0 && i < width
+                    && j >= 0 && j < height) {
+
+                    terrain[i][j] = point;
+                    blockedPoints[i][j] = true; // block off that point
+                }
+            }
+        }
     }
 
     // Print the empty points
