@@ -12,6 +12,13 @@ public class Ball {
 	private double height;
 	private double[] path = new double[2];
 	private double[] location = new double[2];
+	private double angle2; // Angle from horizontal to straight line from ball to hole
+	
+	public void setAngle2(int[] hole)
+	{
+		this.angle2 = Math.toDegrees(Math.atan((hole[1] - this.location[1]) / (hole[0] - location[0])));
+	}
+	
 	
 	// The ball knows its own height
 	public void setHeight(double h)

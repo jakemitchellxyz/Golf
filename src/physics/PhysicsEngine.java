@@ -49,6 +49,10 @@ public class PhysicsEngine{
 	{
 		golfBall = new Ball();
 	}
+	
+	public Ball getBall() {
+		return golfBall;
+	}
 
 	public double getAngle()
 	{
@@ -60,7 +64,7 @@ public class PhysicsEngine{
 		return this.velocity;
 	}
 		
-	public void hitBall(int userAngle, Club club, int power, int[] ball, int[] hole)
+	public void hitBall(int userAngle, Club club, int power, double[] ball, int[] hole)
 	{
 		Random random = new Random();
 		

@@ -11,4 +11,9 @@ public class Tree extends Obstacle {
     public String hit() {
         return "You hit a tree!";
     }
+
+    @Override
+    public String getType() {
+        return "T";
+    }
 }

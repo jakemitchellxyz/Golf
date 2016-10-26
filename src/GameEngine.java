@@ -40,7 +40,11 @@ public class GameEngine {
 
             user.giveHoleDetails();
 
+
             
+
+            // TODO: cycle through rounds
+            quitGame();
 
 
             terrain = hole.getTerrain();

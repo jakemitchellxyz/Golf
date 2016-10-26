@@ -46,13 +46,27 @@ public class UserInteraction {
 
     // Gets the difficulty and number of holes for the game
     public int[] getSettings() {
+        String area;
+
+        // Keep asking until they decide one of these three
+        do {
+            say("Where do you want to play (desert, forest, swamp)? ");
+            area = sc.nextLine();
+        } while(!(area.toLowerCase().equals("desert")
+                || area.toLowerCase().equals("forest")
+                || area.toLowerCase().equals("swamp")));
+
+        // desert = 0; forest = 1; swamp = 2
+        int biome = area.equals("desert") ? 0 :
+                        area.equals("forest") ? 1 : 2;
+
         say("How difficult do you want the game (1-10)? ");
         int difficulty = Math.min(10, Math.max(1, sc.nextInt())); // constrains input to 1-10
 
         say("And how many holes do you want to play (recommended 9 or 18)? ");
-        int numHoles = sc.nextInt();
+        int numHoles = Math.max(1, sc.nextInt()); // Forces at least 1
 
-        return new int[]{ difficulty, numHoles };
+        return new int[]{ difficulty, numHoles, biome };
     }
 
     // Give user details about the course

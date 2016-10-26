@@ -10,5 +10,10 @@ public class Rock extends Obstacle {
     public String hit() {
         return "You hit a rock!";
     }
+
+    @Override
+    public String getType() {
+        return "R";
+    }
 }
 
