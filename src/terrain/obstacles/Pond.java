@@ -10,5 +10,10 @@ public class Pond extends Obstacle {
     public String hit() {
         return "You landed in a pond!";
     }
+
+    @Override
+    public String getType() {
+        return "P";
+    }
 }
 
