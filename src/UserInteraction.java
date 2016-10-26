@@ -57,8 +57,8 @@ public class UserInteraction {
                 || area.toLowerCase().equals("swamp")));
 
         // desert = 0; forest = 1; swamp = 2
-        int biome = area.equals("desert") ? 0 :
-                        area.equals("forest") ? 1 : 2;
+        int biome = area.toLowerCase().equals("desert") ? 0 :
+                        area.toLowerCase().equals("forest") ? 1 : 2;
 
         say("How difficult do you want the game (1-10)? ");
         int difficulty = Math.min(10, Math.max(1, sc.nextInt())); // constrains input to 1-10

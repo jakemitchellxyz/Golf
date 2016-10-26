@@ -13,4 +13,8 @@ public class Hole {
     public Point[][] getTerrain() {
         return terrain;
     }
+
+    public int[] getHole() {
+        return hole;
+    }
 }
