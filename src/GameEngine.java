@@ -36,6 +36,8 @@ public class GameEngine {
             }
 
             user.giveHoleDetails();
+            hole.printTerrain();
+           
 
             // While the ball is not in the hole
             do {

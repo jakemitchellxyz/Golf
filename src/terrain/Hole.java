@@ -1,7 +1,8 @@
 package terrain;
 
 public class Hole {
-    private Point[][] terrain;
+	
+	private Point[][] terrain;
     private int[] hole;
 
     public Hole (int difficulty, int biome) {
@@ -24,7 +25,7 @@ public class Hole {
     public void printTerrain() {
         for (Point[] column : terrain) {
             for (Point row : column) {
-                System.out.print((row != null) ? row.getObstacle().getType() : 0);
+            	System.out.print((row != null) ? row.getObstacle().getType() : 0);
             }
             System.out.println();
         }

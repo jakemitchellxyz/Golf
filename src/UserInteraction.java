@@ -1,4 +1,5 @@
 import java.util.Scanner;
+import terrain.Hole;
 
 public class UserInteraction {
     private Scanner sc;
@@ -73,6 +74,7 @@ public class UserInteraction {
     public void welcomeToCourse() {
         // TODO: welcome user nicely
         say("Welcome to the course!");
+        
     }
 
     // Tell the user the details of the hole
@@ -83,6 +85,12 @@ public class UserInteraction {
         
         
         
+    }
+    
+    public void giveBallDetails() {
+    	// give details about the ball 
+    	
+    	
     }
 
     // Ask user for details about how to hit the ball: [ club, power, userAngle ]

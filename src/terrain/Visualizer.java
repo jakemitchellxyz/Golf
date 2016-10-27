@@ -8,9 +8,12 @@ public class Visualizer { // Allow user to look around
 	
 	private double[] obstacles; 
 		
-	public void getObstacles(Ball golfBall, Point[][] terrain, int[] hole) {
-		golfBall.setAngle2(hole);
-		double angle = golfBall.getAngle();
+	public void getObstacles(Ball golfBall, Point[][] terrain, Hole hole) {
+		int[] holeCoord = hole.getHole();
+		double angle = Math.atan((holeCoord[1] - golfBall.getY()) / (holeCoord[0] - golfBall.getX()));
+		
+		
+		
 		
 	}
 	

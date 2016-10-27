@@ -49,6 +49,18 @@ public class PhysicsEngine {
 		// Set the terminating distance of the ball
 		double distance = thisClub.nextRange(settings[1]);
 		golfBall.setDistance(distance);
+		
+		
+		/*
+		 * Let's convert the user's [1-10] power input to actual power values, then to velocity
+		 * Assuming all the energy from the user is converted to kinetic energy of the golf ball
+		 * DATA: http://members.swingmangolf.com/wp-content/uploads/2014/04/golf-swing-speed-chart.gif
+		 * 
+		 * 
+		 */
+		
+		this.velocity = Math.sqrt( (2 * settings[1] * 0.1) / ( golfBall.MASS ) ) * 30;
+		this.velocity -= thisClub.getLoft(); // Take the club being used into consideration
 
 		// Move the ball towards the target
 		move();
@@ -94,7 +106,7 @@ public class PhysicsEngine {
 		*/
 
 		double vT = Math.sqrt((2 * golfBall.MASS * G) / (golfBall.COEFF * 1.225 * golfBall.AREA)); // Terminal Velocity
-		double a = 1 - (STEP * G) / (Math.cos(thisClub.getLoft()) * vT * this.velocity);
+		double a = 1 - (distanceTraveled * G) / (Math.cos(thisClub.getLoft()) * vT * this.velocity);
 		double time = (Math.log(a) * vT) / -G; // time at which projectile is at that point
 		double b = this.velocity * Math.sin(thisClub.getLoft()) + vT;
 		double x = Math.pow(Math.E, (-1 * G * time) / vT);
