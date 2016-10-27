@@ -9,21 +9,17 @@ public class TerrainGenerator {
     private static final double MISC_OFFSET = 0.1; // what percentage of the x and y should the hole be offset from the tee, the path be offset from the tee, etc.
     private static final double T_OFFSET = 0.5; // Amount to move the offset t
 
-    Random rand = new Random();
+    private Random rand = new Random();
 
     private int difficulty;
-    private int biome;
     private double[] tee;
     private double[] hole;
 
     private int height;
     private int width;
-    private double theta;
 
-    public TerrainGenerator (int difficulty, int biome) {
+    public TerrainGenerator (int difficulty) {
         this.difficulty = difficulty;
-        this.biome = biome;
-        System.out.println(biome);
 
         width = (int) (rand.nextGaussian() * DEVIATION + Math.floor(Math.sqrt(AVERAGE_AREA) + difficulty * 2));
         height = (int) (rand.nextGaussian() * DEVIATION + Math.floor(Math.sqrt(AVERAGE_AREA) + difficulty * 2));
@@ -36,7 +32,13 @@ public class TerrainGenerator {
                 };
     }
 
-    public Point[][] generate() {
+    // Generate a new terrain
+    public Point[][] generate(int biome) {
+
+        /*
+         * Create a path from the tee to the hole and some green around the hole, so that obstacles cannot be generated there
+         */
+
         boolean[][] blockedPoints = new boolean[width][height]; // True means we shouldn't put anything at this point
 
         // Bounds for the green
@@ -52,13 +54,10 @@ public class TerrainGenerator {
 
         // Get the min distance from the tee to the hole (maximum value of the offset t)
         double maxT = Math.sqrt(Math.pow(hole[0] - tee[0], 2) + Math.pow(hole[1] - tee[1], 2));
+        double theta = Math.atan((hole[1] - tee[1]) / (hole[0] - tee[0])); // Get the angle of the slope
 
-        // Calculate variables for a straight line from the tee to the hole
-        theta = Math.atan((hole[1] - tee[1]) / (hole[0] - tee[0])); // Get the angle of the slope
-
-        // t represents the offset from the tee along the straight line from the tee to the hole
-        double t = 0;
-        int tri = 1;
+        double t = 0; // t represents the offset from the tee along the straight line from the tee to the hole
+        int tri = 1; // first of 3 segments of the line (to add some deviation along the sine curve
         int[] pointL;
         int[] pointR;
 
@@ -69,8 +68,8 @@ public class TerrainGenerator {
 
             // first iteration is 1/3, second 2/3, and last 3/3 of the line
             while (t < maxT * (tri / 3.0)) {
-                pointL = getSinCurve(t, height * MISC_OFFSET, amplitude, freq);
-                pointR = getSinCurve(t, width * -MISC_OFFSET, amplitude, freq);
+                pointL = getSinCurve(t, height * MISC_OFFSET, theta, amplitude, freq);
+                pointR = getSinCurve(t, width * -MISC_OFFSET, theta, amplitude, freq);
 
                 // Set all of the points between the lines to true
                 for (int i = pointR[1]; i <= pointL[1]; i++) {
@@ -85,6 +84,9 @@ public class TerrainGenerator {
             tri++;
         }
 
+        /*
+         * Start adding obstacles to the terrain
+         */
         Point[][] terrain = new Point[width][height];
         Obstacle obstacle;
         double odds;
@@ -97,7 +99,7 @@ public class TerrainGenerator {
                     odds = Math.min(0.1, difficulty / 100.0);
 
                     if (rand.nextDouble() <= odds) {
-                        obstacle = newObstacle();
+                        obstacle = newObstacle(biome);
 
                         // if any of the surrounding spots are taken
                         if (surroundingPointsTaken(blockedPoints, x, y, obstacle)) {
@@ -111,14 +113,11 @@ public class TerrainGenerator {
             }
         }
 
-        // TODO: remove
-        printPoints(terrain);
-
         return terrain;
     }
 
     // Returns the sin coordinates at an offset on a specific line
-    private int[] getSinCurve(double t, double lineY, double amplitude, double freq) {
+    private int[] getSinCurve(double t, double lineY, double theta, double amplitude, double freq) {
         double tX = Math.cos(theta) * t;
         double tY = Math.sin(theta) * t + lineY;
         double s = sin(t, amplitude, freq);
@@ -134,7 +133,7 @@ public class TerrainGenerator {
     }
 
     // Generate a random obstacle based on the biome
-    private Obstacle newObstacle() {
+    private Obstacle newObstacle(int biome) {
         Obstacle obstacle;
         double odds = rand.nextDouble();
 
@@ -190,8 +189,6 @@ public class TerrainGenerator {
 
         for (int i = x - radius; i <= x + radius; i++) {
             for (int j = y + radius; j >= y - radius; j--) {
-                //System.out.println(i + " " + j);
-
                 // Make sure this is in the grid first
                 if (i >= 0 && i < width
                     && j >= 0 && j < height) {
@@ -203,34 +200,10 @@ public class TerrainGenerator {
         }
     }
 
-    // Print the empty points
-    private void printPoints(boolean[][] blockedPoints) {
-        for (boolean[] column : blockedPoints) {
-            for (boolean row : column) {
-                System.out.print(row ? ("\u001B[33m" + 1 + "\u001B[0m") : 0);
-            }
-            System.out.println();
-        }
-        System.out.println();
-    }
-
-    // Print the terrain
-    private void printPoints(Point[][] terrain) {
-        for (Point[] column : terrain) {
-            for (Point row : column) {
-                System.out.print((row != null) ? row.getObstacle().getType() : 0);
-            }
-            System.out.println();
-        }
-        System.out.println();
-    }
-
     // Returns the hole we landed at
     public int[] getHole() {
-        // Convert it to integers
-        int[] hole = new int[] { (int) Math.round(this.hole[0]), (int) Math.round(this.hole[1]) };
-
-        return hole;
+        // Convert it to integers and return it
+        return new int[] { (int) Math.round(this.hole[0]), (int) Math.round(this.hole[1]) };
     }
 
 }

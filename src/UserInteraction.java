@@ -81,6 +81,17 @@ public class UserInteraction {
         say("Here are the hole details");
     }
 
+    // Ask user for details about how to hit the ball: [ club, power, userAngle ]
+    public int[] hitBall() {
+        // TODO: give club table and ask which
+        say("Which club would you like? ");
+        int club = Math.min(10, Math.max(1, sc.nextInt())); // constrains input to 1-10
+
+        say("");
+
+        return new int[] { club, 0, 0 };
+    }
+
     // Helper method to print out a message (without typing "System.out.print" a million times
     public void say (String msg) {
         System.out.print(msg);

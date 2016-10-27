@@ -1,8 +1,6 @@
 import physics.PhysicsEngine;
 import terrain.Course;
 import terrain.Hole;
-import terrain.Point;
-import physics.PhysicsEngine;
 
 public class GameEngine {
     private UserInteraction user;
@@ -26,25 +24,26 @@ public class GameEngine {
         }
     }
 
-    public void play() {
+    private void play() {
         Hole hole;
-        Point[][] terrain;
 
         // Iterate through the holes of the game
         while(course.hasNextHole()) {
             hole = course.nextHole();
 
-            if(course.isFirstHole()) {
+            if (course.isFirstHole()) {
                 user.welcomeToCourse();
             }
 
             user.giveHoleDetails();
 
-            // TODO: cycle through rounds
-            quitGame();
+            // While the ball is not in the hole
+            do {
+                user.giveBallDetails();
 
-            terrain = hole.getTerrain();
-            System.out.println("Hole " + course.holeNumber() + ": height " + terrain.length + ", width " + terrain[0].length + ", area " + terrain.length * terrain[0].length);
+                // Tell the physics engine to hit the ball based on the user's choices
+                physics.hitBall(user.hitBall(), hole);
+            } while(!physics.ballInHole());
         }
     }
 

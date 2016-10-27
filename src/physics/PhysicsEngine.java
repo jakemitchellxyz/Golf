@@ -1,87 +1,87 @@
-/**
- * Physics Engine
- * Variables:
- * 	Velocity
- * 	Angle - from user (angle ON THE GROUND)
- * 	Loft Angle - from club (launch angle)
- * 
- *Methods:
- *	nextHeight: returns height at x
- *	
- * 	
- * 
- * Generates one ball
- * Generates 10 clubs
- */
-
-
 package physics;
+
+import terrain.Hole;
 import java.util.Random;
 
-public class PhysicsEngine{
-	private static final double LENGTH = 0.5;
-	private Ball golfBall;
-	
-	
-	// An array with all the 10 clubs
-	// Name, mean, standard deviation, loft
-	private static final Club[] CLUBS = new Club[] {
-					
-		new Club("Driver", 230, 30, 13),
-		new Club("3-wood", 215, 20, 17),
-		new Club("3-iron", 180, 20, 24),
-		new Club("4-iron", 170, 17, 28),
-		new Club("5-iron", 155, 15, 32),
-		new Club("6-iron", 145, 15, 36),
-		new Club("7-iron", 135, 15, 40),
-		new Club("8-iron", 125, 15, 44),
-		new Club("9-iron", 110, 10, 48),
-		new Club("Wedge ",  50, 10, 60) 
-					
-			
+public class PhysicsEngine {
+
+	private static final double G = 9.81; // Gravity
+	private static final double STEP = 0.5; // distance to move the ball each step
+	private static final Club[] CLUBS = new Club[] { // An array with all the 10 clubs
+			// Name, mean, standard deviation, loft, accuracy (10 is bad, 1 is good)
+			new Club("Driver", 230, 30, 13, 10),
+			new Club("3-wood", 215, 20, 17, 9),
+			new Club("3-iron", 180, 20, 24, 7),
+			new Club("4-iron", 170, 17, 28, 6),
+			new Club("5-iron", 155, 15, 32, 5),
+			new Club("6-iron", 145, 15, 36, 4),
+			new Club("7-iron", 135, 15, 40, 3),
+			new Club("8-iron", 125, 15, 44, 2),
+			new Club("9-iron", 110, 10, 48, 1),
+			new Club("Wedge ",  50, 10, 60, 10)
 	};
-	
-	
-	private double angle;
+
+	private Ball golfBall;
+	private Club thisClub;
+	private Hole hole;
+
 	private double velocity;
 	
-	public PhysicsEngine()
-	{
+	public PhysicsEngine() {
 		golfBall = new Ball();
 	}
 
-	public double getAngle()
-	{
-		return this.angle;
+	// settings = [ club, power, userAngle ]
+	public void hitBall(int[] settings, Hole hole) {
+		Random random = new Random();
+		thisClub = CLUBS[settings[0]]; // Get the club the user chose
+		this.hole = hole;
+		int[] holeCoord = hole.getHole();
+
+		// user's angle + inaccuracy from club + inaccuracy from more power) / 4.4 to give a max of 5 * either + or - 1 to decide left or right
+		double userAngle = settings[2] + (((random.nextGaussian() + thisClub.getAccuracy()) + (random.nextGaussian() + settings[1])) / 4.4) * (random.nextBoolean() ? 1 : -1);
+
+		// set the ball's angle to launch
+		double angle = Math.atan((holeCoord[1] - golfBall.getY()) / (holeCoord[0] - golfBall.getX()));
+		angle = Math.toDegrees(angle) + userAngle;
+		golfBall.setAngle(angle);
+
+		// Set the terminating distance of the ball
+		double distance = thisClub.nextRange(settings[1]);
+		golfBall.setDistance(distance);
+
+		// Move the ball towards the target
+		move();
 	}
 
-	public double getVelocity()
-	{
-		return this.velocity;
-	}
-		
-	public void hitBall(int userAngle, Club club, int power, int[] ball, int[] hole)
-	{
-		Random random = new Random();
-		
-		
-		userAngle -= random.nextInt(club.getRange() / 10);
-		
-		int pick = random.nextInt(2);
-		int [] multiplier = {-1,1};
-		
-		double angle = Math.atan(( hole[1] - ball[1] ) / (hole[0] - ball[0]));
-		angle = Math.toDegrees(angle) + (userAngle*multiplier[pick]);
-		
-		double range = club.nextRange(power);	
-		golfBall.setPath(range, angle);
-		
+	// Move the ball step by step towards the target
+	private void move() {
+		double distanceTraveled = 0;
+		int x;
+		int y;
+
+		// As long as we haven't reached the goal
+		while (distanceTraveled < golfBall.getDistance()) {
+			x = (int) Math.round(distanceTraveled * Math.cos(Math.toRadians(golfBall.getAngle())));
+			y = (int) Math.round(distanceTraveled * Math.sin(Math.toRadians(golfBall.getAngle())));
+
+			// If there is no obstacle at this coordinate
+			if (!hole.hasObstacle(x, y)) {
+				golfBall.setLocation(x, y);
+			} else {
+				// If we are shorter than an obstacle, stop there
+				if (nextHeight(distanceTraveled) <= hole.getHeight(x, y)) {
+					break;
+				}
+			}
+
+			distanceTraveled += STEP;
+		}
 	}
 
 	// Function to launch ball
 	// Takes distance along x and the club being used; returns height at that point
-	public void nextHeight(Club club)
-	{
+	private double nextHeight (double distanceTraveled) {
 		/*
 		 * 
 		 * 
@@ -92,32 +92,23 @@ public class PhysicsEngine{
 			Density of air is assumed to be 1.225 kg/m^3
 
 		*/
-		
-		double g = 9.81;
-		double vT = Math.sqrt( (2*golfBall.MASS*g) / (golfBall.COEFF*1.225*golfBall.AREA) ); // Terminal Velocity
-		double a = 1 - ((LENGTH*g) / (Math.cos(club.getLoft())*vT*this.velocity));
-		double time = (Math.log(a) * vT) / -g; // time at which projectile is at that point
-		double b = ((this.velocity*Math.sin(club.getLoft())) + vT);
-		double x = Math.pow(Math.E,(-1*g*time)/vT);
-		double c = 1 - (x);
-		double height = ((vT/g)*(b)*(c)) - (vT*time); // Height of projectile above ground		
-		
-		golfBall.setHeight(height);
 
+		double vT = Math.sqrt((2 * golfBall.MASS * G) / (golfBall.COEFF * 1.225 * golfBall.AREA)); // Terminal Velocity
+		double a = 1 - (STEP * G) / (Math.cos(thisClub.getLoft()) * vT * this.velocity);
+		double time = (Math.log(a) * vT) / -G; // time at which projectile is at that point
+		double b = this.velocity * Math.sin(thisClub.getLoft()) + vT;
+		double x = Math.pow(Math.E, (-1 * G * time) / vT);
+		double c = 1 - x;
+		double height = (vT / G) * (b * c) - (vT * time); // Height of projectile above ground
+		
+		return height;
 	}
-	
-	public void move()
-	{
-		
-		double x = golfBall.getLocation("x");
-		double y = golfBall.getLocation("y");
-		
-		x += LENGTH * Math.toDegrees(Math.cos(Math.toRadians(golfBall.getAngle())));
-		y += LENGTH * Math.toDegrees(Math.sin(Math.toRadians(golfBall.getAngle())));
-		
-		
-		
-		golfBall.setLocation(x, y);
+
+	// True if ball is at the location of the hole (within the radius of the hole)
+	public boolean ballInHole() {
+		double holeRadius = 0.053975; // in meters
+
+		return Math.abs(golfBall.getX() - hole.getHole()[0]) <= holeRadius && Math.abs(golfBall.getY() - hole.getHole()[1]) <= holeRadius;
 	}
 
 } 
