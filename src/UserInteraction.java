@@ -1,5 +1,6 @@
 import java.util.Scanner;
 import terrain.Hole;
+import terrain.Visualizer;
 
 public class UserInteraction {
     private Scanner sc;
@@ -89,6 +90,8 @@ public class UserInteraction {
     
     public void giveBallDetails() {
     	// give details about the ball 
+    	say("The ball is at ");
+    	
     	
     	
     }
