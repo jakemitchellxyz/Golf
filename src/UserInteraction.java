@@ -78,7 +78,11 @@ public class UserInteraction {
     // Tell the user the details of the hole
     public void giveHoleDetails() {
         // TODO: give details about the hole
-        say("Here are the hole details");
+        sayln("Here are the hole details: ");
+        
+        
+        
+        
     }
 
     // Ask user for details about how to hit the ball: [ club, power, userAngle ]
