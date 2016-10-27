@@ -24,6 +24,7 @@ public class PhysicsEngine {
 	private Ball golfBall;
 	private Club thisClub;
 	private Hole hole;
+	private double[] ballStartingPosition;
 
 	private double velocity;
 	
@@ -37,6 +38,7 @@ public class PhysicsEngine {
 		thisClub = CLUBS[settings[0]]; // Get the club the user chose
 		this.hole = hole;
 		int[] holeCoord = hole.getHole();
+		ballStartingPosition = new double[] { golfBall.getX(), golfBall.getY() };
 
 		// user's angle + inaccuracy from club + inaccuracy from more power) / 4.4 to give a max of 5 * either + or - 1 to decide left or right
 		double userAngle = settings[2] + (((random.nextGaussian() + thisClub.getAccuracy()) + (random.nextGaussian() + settings[1])) / 4.4) * (random.nextBoolean() ? 1 : -1);
@@ -74,8 +76,8 @@ public class PhysicsEngine {
 
 		// As long as we haven't reached the goal
 		while (distanceTraveled < golfBall.getDistance()) {
-			x = (int) Math.round(distanceTraveled * Math.cos(Math.toRadians(golfBall.getAngle())));
-			y = (int) Math.round(distanceTraveled * Math.sin(Math.toRadians(golfBall.getAngle())));
+			x = (int) Math.round(distanceTraveled * Math.cos(Math.toRadians(golfBall.getAngle())) + ballStartingPosition[0]);
+			y = (int) Math.round(distanceTraveled * Math.sin(Math.toRadians(golfBall.getAngle())) + ballStartingPosition[1]);
 
 			// If there is no obstacle at this coordinate
 			if (!hole.hasObstacle(x, y)) {
