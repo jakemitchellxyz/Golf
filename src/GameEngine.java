@@ -24,6 +24,7 @@ public class GameEngine {
         }
     }
 
+    // Start playing the game
     private void play() {
         Hole hole;
 
@@ -31,22 +32,30 @@ public class GameEngine {
         while(course.hasNextHole()) {
             hole = course.nextHole();
 
+            // introduce them to the course
             if (course.isFirstHole()) {
                 user.welcomeToCourse();
             }
 
-            user.giveHoleDetails();
-            hole.printTerrain();
-           
+            // show the terrain if they want to see it
+            if (user.wantsToSeeTerrain()) {
+                hole.printTerrain();
+            }
 
             // While the ball is not in the hole
             do {
-                user.giveBallDetails();
-
                 // Tell the physics engine to hit the ball based on the user's choices
-                physics.hitBall(user.hitBall(), hole);
+                physics.hitBall(user.hitBall(physics.getClubsForPrint()), hole);
             } while(!physics.ballInHole());
+
+            // If they made a ball in the hole
+//            user.congratulateHole();
+//            user.updateScore();
         }
+
+        // If they finished the game
+//        user.congratulateGame();
+//        user.updateFinalScore();
     }
 
     // Terminate the program

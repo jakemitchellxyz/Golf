@@ -52,7 +52,6 @@ public class PhysicsEngine {
 		double distance = thisClub.nextRange(settings[1]);
 		golfBall.setDistance(distance);
 		
-		
 		/*
 		 * Let's convert the user's [1-10] power input to actual power values, then to velocity
 		 * Assuming all the energy from the user is converted to kinetic energy of the golf ball
@@ -97,14 +96,11 @@ public class PhysicsEngine {
 	// Takes distance along x and the club being used; returns height at that point
 	private double nextHeight (double distanceTraveled) {
 		/*
-		 * 
-		 * 
 		Credits to http://farside.ph.utexas.edu/teaching/336k/Newtonhtml/node29.html for equations.
 		Credits to http://hyperphysics.phy-astr.gsu.edu/hbase/airfri2.html for Terminal Velocity function at high speeds.
 		
 			vT is the terminal velocity for fast moving object
 			Density of air is assumed to be 1.225 kg/m^3
-
 		*/
 
 		double vT = Math.sqrt((2 * golfBall.MASS * G) / (golfBall.COEFF * 1.225 * golfBall.AREA)); // Terminal Velocity
@@ -123,6 +119,41 @@ public class PhysicsEngine {
 		double holeRadius = 0.053975; // in meters
 
 		return Math.abs(golfBall.getX() - hole.getHole()[0]) <= holeRadius && Math.abs(golfBall.getY() - hole.getHole()[1]) <= holeRadius;
+	}
+
+	// Structure the clubs in a way that can be presented to the user in a pretty way
+	public String[][] getClubsForPrint() {
+		// [ number, name, max distance, accuracy ]
+		String[][] output = new String[12][];
+		int maxName = 4;
+		int maxDistance = 8;
+
+		// Titles
+		output[0] = new String[] { "Number", "Name", "Distance", "Accuracy" };
+
+		Club club;
+		String name;
+		String distance;
+
+		// Store each club
+		for(int i = 0; i < CLUBS.length; i++) {
+			club = CLUBS[i];
+			name = club.getName();
+			distance = club.getRange() + "";
+
+			// store the club in the array
+			output[i + 1] = new String[] { (i + 1) + "", name, distance, club.getAccuracy() + "" };
+
+			// update the maximums
+			maxName = Math.max(maxName, name.length());
+			maxDistance = Math.max(maxDistance, distance.length());
+		}
+
+		// save the maximums for use later
+		output[11] = new String[] { "6", maxName + "", maxDistance + "", "8" };
+
+		// send back the formatted output
+		return output;
 	}
 
 } 

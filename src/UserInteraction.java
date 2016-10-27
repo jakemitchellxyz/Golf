@@ -16,7 +16,18 @@ public class UserInteraction {
 
     // Ask the user if they want to play
     public boolean wantsToPlay() {
-        say("So what do you say? Do you want to play? (yes/no) ");
+        return wantsToDoSomething("So what do you say? Do you want to play? (yes/no) ",
+                                        "So do you want to play or not? (yes/no) ");
+    }
+
+    public boolean wantsToSeeTerrain() {
+        return wantsToDoSomething("Would you like to see an output of the terrain (yes/no)? ",
+                                        "So do you want to see it or not? (yes/no) ");
+    }
+
+    // Ask the user if they want to play
+    private boolean wantsToDoSomething(String question, String reAsk) {
+        say(question);
         String answer = sc.nextLine();
 
         boolean wantsTo = false; // Defaults to false, only true if they explicitly say yes
@@ -26,19 +37,19 @@ public class UserInteraction {
 
             // If they say yes
             if (answer.toLowerCase().equals("yes")
-                || answer.toLowerCase().equals("y")) {
+                    || answer.toLowerCase().equals("y")) {
 
                 wantsTo = true;
 
-            // If they explicitly said "no" or "n"
+                // If they explicitly said "no" or "n"
             } else if (answer.toLowerCase().equals("no")
-                        || answer.toLowerCase().equals("n")) {
+                    || answer.toLowerCase().equals("n")) {
 
                 break;
 
-            // Else, re-ask them if they want to play
+                // Else, re-ask them if they want to play
             } else {
-                say("So do you want to play or not? (yes/no) ");
+                say(reAsk);
                 answer = sc.nextLine();
             }
         }
@@ -82,29 +93,76 @@ public class UserInteraction {
     public void giveHoleDetails() {
         // TODO: give details about the hole
         sayln("Here are the hole details: ");
-        
-        
-        
-        
     }
     
     public void giveBallDetails() {
-    	// give details about the ball 
-    	say("The ball is at ");
-    	
-    	
-    	
+    	// TODO: give visualizer details and ball details
     }
 
     // Ask user for details about how to hit the ball: [ club, power, userAngle ]
-    public int[] hitBall() {
+    public int[] hitBall(String[][] clubs) {
+        String input;
+        do { // while they haven't decided on an angle,
+            giveBallDetails();
+
+            // Ask for an angle
+            sayln("The hole is directly in front of you. Which direction do you want to aim in degrees (negative is left, positive is right)?");
+            say("(remember, type 'look around' to get more information about your surroundings) ");
+            input = sc.nextLine();
+
+            // Give them more details and ask again if they say so
+        } while(input.equals("look around"));
+
+        int angle = Integer.parseInt(input); // Convert input to an integer
+
         // TODO: give club table and ask which
-        say("Which club would you like? ");
+        sayln("Which club would you like? ");
+        printClubs(clubs);
         int club = Math.min(10, Math.max(1, sc.nextInt())); // constrains input to 1-10
 
-        say("");
+        say("How much power do you want to use?");
+        int power = Math.min(10, Math.max(1, sc.nextInt())); // constrains input to 1-10
 
-        return new int[] { club, 0, 0 };
+        return new int[] { club, power, angle };
+    }
+
+    private void printClubs(String[][] clubs) {
+        int[] maximums = new int[] {
+                Integer.parseInt(clubs[11][0]), // maxNumber
+                Integer.parseInt(clubs[11][1]), // maxName
+                Integer.parseInt(clubs[11][2]), // maxDistance
+                Integer.parseInt(clubs[11][3]) // maxAccuracy
+            };
+
+        // top border
+        sayln(repeat("-", maximums[0] + maximums[1] + maximums[2] + maximums[3] + 13));
+
+        String spacingL;
+        String spacingR;
+        int padding;
+        // print the item
+        String[] row;
+        for (int i = 0; i < clubs.length - 1; i++) { // for each club and title
+            row = clubs[i];
+            for (int j = 0; j < row.length; j++) {
+
+                padding = maximums[j] - row[j].length();
+                spacingL = repeat(" ", padding / 2);
+                spacingR = repeat(" ", padding - padding / 2);
+
+                say("| " + spacingL + row[j] + spacingR + " ");
+            }
+
+            sayln("|");
+        }
+
+        // bottom border
+        sayln(repeat("-", maximums[0] + maximums[1] + maximums[2] + maximums[3] + 13));
+    }
+
+    // repeat string s, n times
+    private String repeat (String s, int n) {
+        return new String(new char[n]).replace("\0", s); // from http://stackoverflow.com/a/22460319
     }
 
     // Helper method to print out a message (without typing "System.out.print" a million times
@@ -115,10 +173,5 @@ public class UserInteraction {
     // Println helper
     public void sayln (String msg) {
         System.out.println(msg);
-    }
-
-    // Line break for formatting
-    public void newLine () {
-        System.out.println();
     }
 }

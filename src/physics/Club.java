@@ -36,11 +36,14 @@ public class Club {
 	
 	public int getLoft()
 	{
-		return this.loft;
+		return loft;
 	}
 	
 	public int getAccuracy() {
         return accuracy;
     }
-	
+
+    public int getRange() {
+        return range;
+    }
 }
