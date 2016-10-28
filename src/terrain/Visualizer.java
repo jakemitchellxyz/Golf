@@ -95,7 +95,7 @@ public class Visualizer { // Allow user to look around
 		
 	}	
 	
-	private double getDistanceToHole(Hole hole) // return the current distance between the ball to the hole in yards
+	public double getDistanceToHole() // return the current distance between the ball to the hole in yards
 	{
 		return this.distanceToHole;
 	}

@@ -31,6 +31,10 @@ public class PhysicsEngine {
 	public PhysicsEngine() {
 		golfBall = new Ball();
 	}
+	
+	public Ball getBall() {
+		return this.golfBall;
+	}
 
 	// settings = [ club, power, userAngle ]
 	public void hitBall(int[] settings, Hole hole) {

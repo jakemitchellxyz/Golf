@@ -13,6 +13,11 @@ public class GameEngine {
         this.physics = new PhysicsEngine();
         this.scoreboard = new ScoreKeeper();
     }
+    
+    public PhysicsEngine getPhysicsEngine() {
+    	return this.physics;
+    }
+    
 
     // Give user instructions and create a new game
     public void run() {
@@ -29,7 +34,7 @@ public class GameEngine {
     // Start playing the game
     private void play() {
         Hole hole;
-
+        
         // Iterate through the holes of the game
         while(course.hasNextHole()) {
             hole = course.nextHole();

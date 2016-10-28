@@ -1,12 +1,14 @@
 import java.util.Scanner;
-import terrain.Hole;
 import terrain.Visualizer;
+import terrain.Hole;
 
 public class UserInteraction {
     private Scanner sc;
+    private Visualizer visualizer;
 
     public UserInteraction() {
         this.sc = new Scanner(System.in);
+        this.visualizer = new Visualizer();
     }
 
     public void giveInstructions() {
@@ -96,16 +98,19 @@ public class UserInteraction {
         sayln("Here are the hole details: ");
     }
     
-    public void giveBallDetails() {
+    public void giveBallDetails(Visualizer visualizer) {
     	// TODO: give visualizer details and ball details
+    	visualizer.getObstacles(golfBall, terrain, hole);
         sayln("Here are the details from the visualizer: ");
+        sayln("Distance to hole: " + visualizer.getDistanceToHole() + " yards.");
+        
     }
 
     // Ask user for details about how to hit the ball: [ club, power, userAngle ]
     public int[] hitBall(String[][] clubs) {
         String input;
         do { // while they haven't decided on an angle,
-            giveBallDetails();
+            giveBallDetails(this.visualizer);
 
             // Ask for an angle
             sayln("The hole is directly in front of you. Which direction do you want to aim in degrees (negative is left, positive is right)?");
