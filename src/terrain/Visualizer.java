@@ -22,6 +22,7 @@ public class Visualizer { // Allow user to look around
         this.ball = ball;
     }
 
+    // Save what we see
 	public void lookAround() {
 		int[] holeCoord = hole.getHole();
 

@@ -48,7 +48,7 @@ public class PhysicsEngine {
 	}
 
 	// settings = [ club, power, userAngle ]
-	public void hitBall(int[] settings, Hole hole) throws LandedInWaterException, BallOutOfBoundsException {
+	public void hitBall(int[] settings, Hole hole) throws LandedInWaterException, BallOutOfBoundsException, HitAnObstacle {
 		Random random = new Random();
 		thisClub = CLUBS[settings[0]]; // Get the club the user chose
 		this.hole = hole;
@@ -83,7 +83,7 @@ public class PhysicsEngine {
 	}
 
 	// Move the ball step by step towards the target
-	private void move() throws LandedInWaterException, BallOutOfBoundsException {
+	private void move() throws LandedInWaterException, BallOutOfBoundsException, HitAnObstacle {
 		double distanceTraveled = 0;
 		double height;
 		int x;
@@ -111,7 +111,7 @@ public class PhysicsEngine {
 					}
 
 					if (height > 0 && height <= hole.getHeight(x, y)) {
-						break;
+						throw new HitAnObstacle(hole.getObstacle(x, y));
 					}
 				}
 			} else {

@@ -69,6 +69,8 @@ public class GameEngine {
                     user.ballWentOutOfBounds();
                 } catch (LandedInWaterException e) {
                     user.landedInWater();
+                } catch (HitAnObstacle e) {
+                    user.hitObstacle(e.getMessage());
                 } finally {
                     scoreboard.swing();
                     visualizer.setBall(physics.getBall());

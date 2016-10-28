@@ -93,7 +93,6 @@ public class UserInteraction {
     }
     
     public void lookAround(Visualizer visualizer) {
-    	// TODO: give visualizer details and ball details
         sayln("Here are the details from the visualizer: ");
         visualizer.lookAround();
 
@@ -116,7 +115,6 @@ public class UserInteraction {
 
         int angle = (input.equals("")) ? 0 : Integer.parseInt(input); // Convert input to an integer
 
-        // TODO: give club table and ask which
         printClubs(clubs);
         say("Which club would you like? ");
         int club = Math.min(10, Math.max(1, sc.nextInt())); // constrains input to 1-10
@@ -127,32 +125,30 @@ public class UserInteraction {
         return new int[] { club, power, angle };
     }
 
-    // TODO: make gooder
     public void ballWentOutOfBounds() {
         sayln("Oh no! The ball went out of bounds! It's back where you hit it from.");
     }
 
-    // TODO: goodify this
     public void landedInWater() {
         sayln("Oh no! The ball landed in water! It's back where you hit it from.");
     }
 
-    // TODO: make fancy
-    public void congratulateHole() {
-        sayln("you made it in the hole!");
+    public void hitObstacle(String obstacle) {
+        sayln("Oh no! You hit a " + obstacle + "!");
     }
 
-    // TODO: pretty-ify
+    public void congratulateHole() {
+        sayln("You made it in the hole!");
+    }
+
     public void updateScore(int score) {
         sayln("Your score is: " + score);
     }
 
-    // TODO: be happier
     public void congratulateGame() {
         sayln("Congratulations, you beat the game!");
     }
 
-    // TODO: make good
     public void updateFinalScore(int score) {
         sayln("Your final score is: " + score);
     }
