@@ -20,12 +20,13 @@ public class UserInteraction {
                                         "So do you want to play or not? (yes/no) ");
     }
 
+    // Ask the user if they want to see the terrain
     public boolean wantsToSeeTerrain() {
         return wantsToDoSomething("Would you like to see an output of the terrain (yes/no)? ",
                                         "So do you want to see it or not? (yes/no) ");
     }
 
-    // Ask the user if they want to play
+    // Ask the user if they want to do something
     private boolean wantsToDoSomething(String question, String reAsk) {
         say(question);
         String answer = sc.nextLine();
@@ -85,7 +86,7 @@ public class UserInteraction {
     // Give user details about the course
     public void welcomeToCourse() {
         // TODO: welcome user nicely
-        say("Welcome to the course!");
+        sayln("Welcome to the course!");
         
     }
 
@@ -97,6 +98,7 @@ public class UserInteraction {
     
     public void giveBallDetails() {
     	// TODO: give visualizer details and ball details
+        sayln("Here are the details from the visualizer: ");
     }
 
     // Ask user for details about how to hit the ball: [ club, power, userAngle ]
@@ -126,6 +128,27 @@ public class UserInteraction {
         return new int[] { club, power, angle };
     }
 
+    // TODO: make fancy
+    public void congratulateHole() {
+        sayln("you made it in the hole!");
+    }
+
+    // TODO: pretty-ify
+    public void updateScore(int score) {
+        sayln("Your score is: " + score);
+    }
+
+    // TODO: be happier
+    public void congratulateGame() {
+        sayln("Congratulations, you beat the game!");
+    }
+
+    // TODO: make good
+    public void updateFinalScore(int score) {
+        sayln("Your final score is: " + score);
+    }
+
+    // Prints the clubs beautifully
     private void printClubs(String[][] clubs) {
         int[] maximums = new int[] {
                 Integer.parseInt(clubs[11][0]), // maxNumber
