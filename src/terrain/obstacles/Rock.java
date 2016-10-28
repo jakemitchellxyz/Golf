@@ -15,5 +15,10 @@ public class Rock extends Obstacle {
     public String getType() {
         return "R";
     }
+
+    @Override
+    public String getFullType() {
+        return "rock";
+    }
 }
 

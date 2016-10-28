@@ -13,6 +13,11 @@ public class Hole {
         this.par = (int) (Math.random() * 3) + 3; // between 3-5
     }
 
+    // Returns whether coordinates exist within the terrain
+    public boolean exists (int x, int y) {
+        return x >= 0 && y >= 0 && terrain.length > x && terrain[x].length > y;
+    }
+
     // returns true if there is an obstacle at that point
     public boolean hasObstacle (int x, int y) {
         return terrain[x][y] != null;
@@ -21,6 +26,11 @@ public class Hole {
     // Gets the height of the obstacle at the coordinates
     public double getHeight(int x, int y) {
         return terrain[x][y].getHeight();
+    }
+
+    // Get the type of the obstacle at a point
+    public String getObstacle(int x, int y) {
+        return terrain[x][y].getObstacle().getFullType();
     }
 
     // Print the terrain

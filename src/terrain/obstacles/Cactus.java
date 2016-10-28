@@ -16,4 +16,9 @@ public class Cactus extends Obstacle {
     public String getType() {
         return "C";
     }
+
+    @Override
+    public String getFullType() {
+        return "cactus";
+    }
 }

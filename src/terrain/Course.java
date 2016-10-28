@@ -38,4 +38,8 @@ public class Course {
         return currentHole == 1;
     }
 
+    public int numHoles() {
+        return holesInGame;
+    }
+
 }

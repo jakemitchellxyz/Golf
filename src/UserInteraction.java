@@ -1,19 +1,21 @@
 import java.util.Scanner;
 import terrain.Visualizer;
-import terrain.Hole;
 
 public class UserInteraction {
     private Scanner sc;
-    private Visualizer visualizer;
+    private String area;
 
     public UserInteraction() {
         this.sc = new Scanner(System.in);
-        this.visualizer = new Visualizer();
     }
 
     public void giveInstructions() {
         // TODO: give user instructions for the game
         sayln("Here are some instructions!");
+    }
+
+    public void welcomeToHole(int num) {
+        sayln("You are playing hole " + num + "!");
     }
 
     // Ask the user if they want to play
@@ -52,7 +54,9 @@ public class UserInteraction {
 
                 // Else, re-ask them if they want to play
             } else {
-                say(reAsk);
+                if (!answer.equals("")) {
+                    say(reAsk);
+                }
                 answer = sc.nextLine();
             }
         }
@@ -62,8 +66,6 @@ public class UserInteraction {
 
     // Gets the difficulty and number of holes for the game
     public int[] getSettings() {
-        String area;
-
         // Keep asking until they decide one of these three
         do {
             say("Where do you want to play (desert, forest, swamp)? ");
@@ -86,51 +88,53 @@ public class UserInteraction {
     }
 
     // Give user details about the course
-    public void welcomeToCourse() {
-        // TODO: welcome user nicely
-        sayln("Welcome to the course!");
-        
-    }
-
-    // Tell the user the details of the hole
-    public void giveHoleDetails() {
-        // TODO: give details about the hole
-        sayln("Here are the hole details: ");
+    public void welcomeToCourse(int numHoles) {
+        sayln("You are playing " + numHoles + " holes in a " + area + "!");
     }
     
-    public void giveBallDetails(Visualizer visualizer) {
+    public void lookAround(Visualizer visualizer) {
     	// TODO: give visualizer details and ball details
-    	visualizer.getObstacles(golfBall, terrain, hole);
         sayln("Here are the details from the visualizer: ");
-        sayln("Distance to hole: " + visualizer.getDistanceToHole() + " yards.");
-        
+        visualizer.lookAround();
+
+        sayln("Distance to hole: " + visualizer.getDistanceToHole() + ".");
     }
 
     // Ask user for details about how to hit the ball: [ club, power, userAngle ]
-    public int[] hitBall(String[][] clubs) {
+    public int[] hitBall(String[][] clubs, Visualizer visualizer) {
         String input;
         do { // while they haven't decided on an angle,
-            giveBallDetails(this.visualizer);
+            lookAround(visualizer);
 
             // Ask for an angle
-            sayln("The hole is directly in front of you. Which direction do you want to aim in degrees (negative is left, positive is right)?");
-            say("(remember, type 'look around' to get more information about your surroundings) ");
+            sayln("(remember, type 'look around' to get more information about your surroundings)");
+            say("The hole is directly in front of you. Which direction do you want to aim in degrees (negative is left, positive is right)? ");
             input = sc.nextLine();
 
             // Give them more details and ask again if they say so
         } while(input.equals("look around"));
 
-        int angle = Integer.parseInt(input); // Convert input to an integer
+        int angle = (input.equals("")) ? 0 : Integer.parseInt(input); // Convert input to an integer
 
         // TODO: give club table and ask which
-        sayln("Which club would you like? ");
         printClubs(clubs);
+        say("Which club would you like? ");
         int club = Math.min(10, Math.max(1, sc.nextInt())); // constrains input to 1-10
 
-        say("How much power do you want to use?");
+        say("How much power do you want to use? ");
         int power = Math.min(10, Math.max(1, sc.nextInt())); // constrains input to 1-10
 
         return new int[] { club, power, angle };
+    }
+
+    // TODO: make gooder
+    public void ballWentOutOfBounds() {
+        sayln("Oh no! The ball went out of bounds! It's back where you hit it from.");
+    }
+
+    // TODO: goodify this
+    public void landedInWater() {
+        sayln("Oh no! The ball landed in water! It's back where you hit it from.");
     }
 
     // TODO: make fancy

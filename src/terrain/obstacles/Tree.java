@@ -16,4 +16,9 @@ public class Tree extends Obstacle {
     public String getType() {
         return "T";
     }
+
+    @Override
+    public String getFullType() {
+        return "tree";
+    }
 }

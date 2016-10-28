@@ -1,102 +1,106 @@
 package terrain;
 
-import physics.Ball;
-import terrain.obstacles.Obstacle;
-
 // https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Peripheral_vision.svg/2000px-Peripheral_vision.svg.png
 
 public class Visualizer { // Allow user to look around
 	
 	public static final int LINE_OF_SIGHT = 10; // User can look a maximum of 10 m around him
 	public static final double STEPS = 0.5; // Steps to check for an obstacle along a straight line within LINE_OF_SIGHT
-	
-	private double[] ballStartingPosition;
-	private Obstacle[] obstacles; 
-	private String info[];
-	private int viewAngle;	
-	private String locationOfObstacle;
-	private double distanceToHole;
-	
-		
-	public void getObstacles(Ball golfBall, Point[][] terrain, Hole hole) {
+    public static final int DEGREES_OF_CHANGE = 5;
+
+	private int[][] obstacles;
+    private double viewerAngle;
+
+    private Hole hole;
+    private double[] ball;
+
+    public void setHole(Hole hole) {
+        this.hole = hole;
+    }
+
+    public void setBall(double[] ball) {
+        this.ball = ball;
+    }
+
+	public void lookAround() {
 		int[] holeCoord = hole.getHole();
-		double angle = Math.atan((holeCoord[1] - golfBall.getY()) / (holeCoord[0] - golfBall.getX()));
-		double distanceTraveled = 0;
-		double viewAngle = angle + 30;
-		
-		// Compute and save distance to hole
-		this.distanceToHole = Math.sqrt( (Math.pow( (holeCoord[1] - golfBall.getY()), 2) +  Math.pow( (holeCoord[0] - golfBall.getX()), 2)) );
-		this.distanceToHole *= 1.09361; // Convert to yards
-		ballStartingPosition = new double[] { golfBall.getX(), golfBall.getY() };
-		
-		
-		if ( viewAngle >= 0 ) {
-			
-			while ( viewAngle >= (angle - 30) ) {
-			
-				int count = 0;
-				
-				compute(hole, terrain, distanceTraveled, ballStartingPosition, golfBall);
-				saveVisualData(count, angle);
-				
-				count++;
-				viewAngle -= 5;
-			}
-		}
-		
-		else if ( viewAngle < 0 ) {
-			
-			while ( viewAngle <= (viewAngle - 60 ) ) {
-		
-				int count = 0;
-				
-				compute(hole, terrain, distanceTraveled, ballStartingPosition, golfBall );
-				saveVisualData(count,angle);
-				
-				count++;			
-				viewAngle -= 5;
-			}
-			
-		}
-		
-	}
-	
-	private void compute(Hole hole, Point[][] terrain, double distanceTraveled, double[] ballStartingPosition, Ball golfBall)
-	{
-		for (int i = 0; i < LINE_OF_SIGHT; i += STEPS) {
-			int x = (int) Math.round(distanceTraveled * Math.cos(Math.toRadians(golfBall.getAngle())) + ballStartingPosition[0]);
-			int y = (int) Math.round(distanceTraveled * Math.sin(Math.toRadians(golfBall.getAngle())) + ballStartingPosition[1]);
 
-			 
-			if (hole.hasObstacle(x, y)) {
-				obstacles[i] = terrain[x][y].getObstacle();
-				continue;	
-				
-			}
-		
-			distanceTraveled += STEPS;
-		}
-		
-		
+        this.viewerAngle = Math.toDegrees(Math.atan((holeCoord[1] - ball[1]) / (holeCoord[0] - ball[0])));
+		double startingAngle = viewerAngle + 30;
+        double offsetDegrees;
 
+        // from 1-12
+        for (int d = 0; d < 13; d++) {
+            offsetDegrees = d * DEGREES_OF_CHANGE;
+            look(startingAngle - offsetDegrees);
+        }
+
+        saySurroundings();
 	}
-	
-	private void saveVisualData(int count, double angle) {
-		
-		if ( viewAngle > angle) {
-			locationOfObstacle = "is " + (viewAngle - angle) + " on your left.";
+
+	// Look at obstacles
+	private void look(double angle) {
+        int x;
+        int y;
+
+		for (double i = 0; i < LINE_OF_SIGHT; i += STEPS) {
+			x = (int) Math.round(i * Math.cos(Math.toRadians(angle)) + ball[0]);
+			y = (int) Math.round(i * Math.sin(Math.toRadians(angle)) + ball[1]);
+
+            // If coordinate exists
+            if (hole.exists(x, y)) {
+                // if there is an obstacle there
+                if (hole.hasObstacle(x, y)) {
+                    // Add point to it
+                    int[][] nObstacles = new int[obstacles.length + 1][];
+                    for (int j = 0; j < obstacles.length; j++) {
+                        nObstacles[j] = obstacles[j];
+                    }
+                    nObstacles[nObstacles.length - 1] = new int[] { x, y, (int) Math.round(i * 1.09361), (int) Math.round(angle) };
+
+                    obstacles = nObstacles;
+                }
+            } else {
+                break; // we're looking off the map
+            }
 		}
-		else if ( viewAngle < angle){
-			locationOfObstacle = "is " + (viewAngle) + " on your right.";
-		}
-		
-		info[count] = "There is a " + obstacles[count].getType() + "at " + locationOfObstacle;
-			
-		
-	}	
-	
-	public double getDistanceToHole() // return the current distance between the ball to the hole in yards
-	{
-		return this.distanceToHole;
+	}
+
+	// Print out all of the obstacles near you
+	private void saySurroundings () {
+        String locationOfObstacle;
+        int angle;
+
+        // If there are no obstacles
+        if (obstacles.length == 0) {
+            System.out.println("There are no obstacles near you!");
+        } else {
+            for (int[] obstacle : obstacles) {
+                angle = obstacle[3];
+
+                locationOfObstacle = "There is a " + hole.getObstacle(obstacle[0], obstacle[1]);
+
+                if (angle < viewerAngle) {
+                    locationOfObstacle += " " + obstacle[3] + " degrees on your left";
+                } else if (angle > viewerAngle) {
+                    locationOfObstacle += " " + obstacle[3] + " degrees on your right";
+                } else {
+                    locationOfObstacle += " is directly in front of you";
+                }
+
+                locationOfObstacle += " " + obstacle[2] + " yards away.";
+
+                System.out.println(locationOfObstacle);
+            }
+        }
+	}
+
+    // return the current distance between the ball to the hole in yards
+	public String getDistanceToHole() {
+        // Compute and save distance to hole
+        double distanceToHole = Math.sqrt((Math.pow((hole.getHole()[1] - ball[1]), 2) +  Math.pow((hole.getHole()[0] - ball[0]), 2)));
+        distanceToHole *= 1.09361; // Convert to yards
+
+        return (distanceToHole < 20) ? Math.round(distanceToHole * 3) + " feet" : Math.round(distanceToHole) + " yards";
 	}
 }

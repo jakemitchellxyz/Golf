@@ -4,7 +4,7 @@ import java.util.Random;
 import terrain.obstacles.*;
 
 public class TerrainGenerator {
-    private static final int AVERAGE_AREA = 11000; // average area of a map
+    private static final int AVERAGE_AREA = 16000; // average area of a map
     private static final int DEVIATION = 15; // Std deviation for height and width
     private static final double MISC_OFFSET = 0.1; // what percentage of the x and y should the hole be offset from the tee, the path be offset from the tee, etc.
     private static final double T_OFFSET = 0.5; // Amount to move the offset t

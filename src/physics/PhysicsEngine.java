@@ -2,6 +2,7 @@ package physics;
 
 import terrain.Hole;
 import java.util.Random;
+import exceptions.*;
 
 public class PhysicsEngine {
 
@@ -32,12 +33,22 @@ public class PhysicsEngine {
 		golfBall = new Ball();
 	}
 	
-	public Ball getBall() {
-		return this.golfBall;
+	public double[] getBall() {
+		return new double[] { golfBall.getX(), golfBall.getY() };
+	}
+
+	// put the ball back where it was
+	public void resetBall() {
+		resetBall(ballStartingPosition[0], ballStartingPosition[1]);
+	}
+
+	// put the ball back on the tee
+	public void resetBall(double x, double y) {
+		golfBall.setLocation(x, y);
 	}
 
 	// settings = [ club, power, userAngle ]
-	public void hitBall(int[] settings, Hole hole) {
+	public void hitBall(int[] settings, Hole hole) throws LandedInWaterException, BallOutOfBoundsException {
 		Random random = new Random();
 		thisClub = CLUBS[settings[0]]; // Get the club the user chose
 		this.hole = hole;
@@ -72,8 +83,9 @@ public class PhysicsEngine {
 	}
 
 	// Move the ball step by step towards the target
-	private void move() {
+	private void move() throws LandedInWaterException, BallOutOfBoundsException {
 		double distanceTraveled = 0;
+		double height;
 		int x;
 		int y;
 
@@ -82,14 +94,30 @@ public class PhysicsEngine {
 			x = (int) Math.round(distanceTraveled * Math.cos(Math.toRadians(golfBall.getAngle())) + ballStartingPosition[0]);
 			y = (int) Math.round(distanceTraveled * Math.sin(Math.toRadians(golfBall.getAngle())) + ballStartingPosition[1]);
 
-			// If there is no obstacle at this coordinate
-			if (!hole.hasObstacle(x, y)) {
-				golfBall.setLocation(x, y);
-			} else {
-				// If we are shorter than an obstacle, stop there
-				if (nextHeight(distanceTraveled) <= hole.getHeight(x, y)) {
-					break;
+			// If the coordinate exists
+			if (hole.exists(x, y)) {
+				// If there is no obstacle at this coordinate
+				if (!hole.hasObstacle(x, y)) {
+					golfBall.setLocation(x, y); // set the ball's location to this spot
+				} else {
+					// If we are shorter than an obstacle, stop there
+					height = nextHeight(distanceTraveled);
+
+					// if we landed in water
+					if (height <= 0) {
+						resetBall();
+						// tell the user they landed in water and abort
+						throw new LandedInWaterException();
+					}
+
+					if (height > 0 && height <= hole.getHeight(x, y)) {
+						break;
+					}
 				}
+			} else {
+				// Reset the position of the ball to where it was and tell the user and abort
+				resetBall();
+				throw new BallOutOfBoundsException();
 			}
 
 			distanceTraveled += STEP;

@@ -28,4 +28,5 @@ public abstract class Obstacle {
 
     public abstract String hit();
     public abstract String getType();
+    public abstract String getFullType();
 }

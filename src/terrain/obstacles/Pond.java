@@ -15,5 +15,10 @@ public class Pond extends Obstacle {
     public String getType() {
         return "P";
     }
+
+    @Override
+    public String getFullType() {
+        return "pond";
+    }
 }
 
