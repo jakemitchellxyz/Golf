@@ -6,7 +6,7 @@ public class Visualizer { // Allow user to look around
 	
 	public static final int LINE_OF_SIGHT = 10; // User can look a maximum of 10 m around him
 	public static final double STEPS = 0.5; // Steps to check for an obstacle along a straight line within LINE_OF_SIGHT
-    public static final int DEGREES_OF_CHANGE = 5;
+    public static final int DEGREES_OF_CHANGE = 10;
 
 	private int[][] obstacles;
     private double viewerAngle;
@@ -31,7 +31,7 @@ public class Visualizer { // Allow user to look around
         double offsetDegrees;
 
         // from 1-12
-        for (int d = 0; d < 13; d++) {
+        for (int d = 0; d < 7; d++) {
             offsetDegrees = d * DEGREES_OF_CHANGE;
             look(startingAngle - offsetDegrees);
         }
@@ -43,6 +43,8 @@ public class Visualizer { // Allow user to look around
 	private void look(double angle) {
         int x;
         int y;
+
+        obstacles = new int[][]{};
 
 		for (double i = 0; i < LINE_OF_SIGHT; i += STEPS) {
 			x = (int) Math.round(i * Math.cos(Math.toRadians(angle)) + ball[0]);
@@ -82,9 +84,9 @@ public class Visualizer { // Allow user to look around
                 locationOfObstacle = "There is a " + hole.getObstacle(obstacle[0], obstacle[1]);
 
                 if (angle < viewerAngle) {
-                    locationOfObstacle += " " + obstacle[3] + " degrees on your left";
+                    locationOfObstacle += " " + Math.round(viewerAngle - angle) + " degrees on your left";
                 } else if (angle > viewerAngle) {
-                    locationOfObstacle += " " + obstacle[3] + " degrees on your right";
+                    locationOfObstacle += " " + Math.round(angle - viewerAngle) + " degrees on your right";
                 } else {
                     locationOfObstacle += " is directly in front of you";
                 }

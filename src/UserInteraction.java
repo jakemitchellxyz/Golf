@@ -19,7 +19,8 @@ public class UserInteraction {
     }
 
     public void welcomeToHole(int num) {
-        sayln("You are playing hole " + num + "!");
+        sayln("You are on hole " + num + "!");
+        System.out.println();
     }
 
     // Ask the user if they want to play
@@ -30,13 +31,15 @@ public class UserInteraction {
 
     // Ask the user if they want to see the terrain
     public boolean wantsToSeeTerrain() {
-        return wantsToDoSomething("Would you like to see an output of the terrain (yes/no)? ",
-                                        "So do you want to see it or not? (yes/no) ");
+        return wantsToDoSomething("Would you like to see an output of the terrain (yes/no)? ", "");
     }
 
     // Ask the user if they want to do something
     private boolean wantsToDoSomething(String question, String reAsk) {
         say(question);
+
+        // Reset the scanner
+        sc.reset();
         String answer = sc.nextLine();
 
         boolean wantsTo = false; // Defaults to false, only true if they explicitly say yes
@@ -58,9 +61,7 @@ public class UserInteraction {
 
                 // Else, re-ask them if they want to play
             } else {
-                if (!answer.equals("")) {
-                    say(reAsk);
-                }
+                say(reAsk);
                 answer = sc.nextLine();
             }
         }
@@ -81,9 +82,14 @@ public class UserInteraction {
         // desert = 0; forest = 1; swamp = 2
         int biome = area.toLowerCase().equals("desert") ? 0 :
                         area.toLowerCase().equals("forest") ? 1 : 2;
+        // Reset the scanner
+        sc.reset();
 
         say("How difficult do you want the game (1-10)? ");
         int difficulty = Math.min(10, Math.max(1, sc.nextInt())); // constrains input to 1-10
+
+        // Reset the scanner
+        sc.reset();
 
         say("And how many holes do you want to play (recommended 9 or 18)? ");
         int numHoles = Math.max(1, sc.nextInt()); // Forces at least 1
@@ -93,70 +99,71 @@ public class UserInteraction {
 
     // Give user details about the course
     public void welcomeToCourse(int numHoles) {
+        System.out.println();
         sayln("You are playing " + numHoles + " holes in a " + area + "!");
     }
     
     public void lookAround(Visualizer visualizer) {
-    	// TODO: give visualizer details and ball details
         sayln("Here are the details from the visualizer: ");
         visualizer.lookAround();
 
         sayln("Distance to hole: " + visualizer.getDistanceToHole() + ".");
+        System.out.println();
     }
 
     // Ask user for details about how to hit the ball: [ club, power, userAngle ]
     public int[] hitBall(String[][] clubs, Visualizer visualizer) {
-        String input;
-        do { // while they haven't decided on an angle,
-            lookAround(visualizer);
+        lookAround(visualizer);
 
-            // Ask for an angle
-            sayln("(remember, type 'look around' to get more information about your surroundings)");
-            say("The hole is directly in front of you. Which direction do you want to aim in degrees (negative is left, positive is right)? ");
-            input = sc.nextLine();
+        // Ask for an angle
+        say("The hole is directly in front of you. Which direction do you want to aim in degrees (negative is left, positive is right)? ");
 
-            // Give them more details and ask again if they say so
-        } while(input.equals("look around"));
+        // Reset the scanner
+        sc.reset();
 
-        int angle = (input.equals("")) ? 0 : Integer.parseInt(input); // Convert input to an integer
+        int angle = sc.nextInt();
 
-        // TODO: give club table and ask which
-        printClubs(clubs);
-        say("Which club would you like? ");
+        printClubs(clubs); // Show the user all the clubs
+
+        // Reset the scanner
+        sc.reset();
+
+        say("Which club would you like (type the number)? ");
         int club = Math.min(10, Math.max(1, sc.nextInt())); // constrains input to 1-10
+
+        // Reset the scanner
+        sc.reset();
 
         say("How much power do you want to use? ");
         int power = Math.min(10, Math.max(1, sc.nextInt())); // constrains input to 1-10
 
-        return new int[] { club, power, angle };
+        return new int[] { club - 1, power, angle };
     }
 
-    // TODO: make gooder
     public void ballWentOutOfBounds() {
         sayln("Oh no! The ball went out of bounds! It's back where you hit it from.");
     }
 
-    // TODO: goodify this
     public void landedInWater() {
         sayln("Oh no! The ball landed in water! It's back where you hit it from.");
     }
 
-    // TODO: make fancy
-    public void congratulateHole() {
-        sayln("you made it in the hole!");
+    public void hitObstacle(String obstacle) {
+        sayln("Oh no! You hit a " + obstacle + "!");
     }
 
-    // TODO: pretty-ify
+    public void congratulateHole() {
+        sayln("You made it in the hole!");
+    }
+
     public void updateScore(int score) {
         sayln("Your score is: " + score);
     }
 
-    // TODO: be happier
     public void congratulateGame() {
         sayln("Congratulations, you beat the game!");
     }
 
-    // TODO: make good
     public void updateFinalScore(int score) {
         sayln("Your final score is: " + score);
     }
